@@ -1312,3 +1312,215 @@ template<class 类型参数名1, class 类型参数名2,...>
 }
 ```
 - [ ] 一般把一个普通的函数改造成一个通用函数模板。
+- [ ] 类模板定义
+```C++
+template<class或者typename T,...>
+class 类名
+{};
+```
+- [ ] 模板特殊化：
+```C++
+#include<iostream>
+#include<string>
+
+using namespace std;
+
+template<typename T>
+class A
+{
+public:
+
+	//其他类型调用这个函数时返回0
+	T getInt() 
+	{
+		return 0;
+	}
+};
+
+//特殊化模板
+template<>//不能忘记了，否则会报错
+class A<int>
+{
+public:
+	
+	int getInt() 
+	{
+		return 1;
+	}
+
+};
+
+int main()
+{
+	A<double> d;
+	A<int> i;
+
+	cout << d.getInt() << endl;//输出0
+	cout << i.getInt() << endl;//输出1
+}
+```
+- [ ] 函数模板重载匹配规则（**有先后顺序**）：
+    1. 寻找和使用**最符合函数名和参数类型的函数**。
+    2. 寻找符合要求的**函数模板**。
+    3. 寻到可以通过**类型转化**进行参数匹配的函数，不一定是强制类型转换。
+- [ ] 调用函数不明确在编译时会报错：
+```C++
+#include<iostream>
+#include<string>
+using namespace std;
+
+void Test(int a = 1) 
+{
+	cout << a << endl;
+}
+
+void Test() 
+{
+	cout << 0 << endl;
+}
+
+int main()
+{
+	Test();//编译不通过
+	return 1;
+}
+```
+
+## 类型识别和强制转换运算符
+- [ ] 类型识别会付出一定的**效率代价**。
+- [ ] **RTTI函数**依赖驻留在**虚函数表**中的信息来在运行时识别类型。
+- [ ] 使用`typeid()`关键字
+```C++
+#include <iostream>
+using namespace std;
+
+int main(int arg, char **args) {
+    //用typeid获取运行时类型信息
+    cout << typeid(cin).name() << endl;
+
+    return 1;
+}
+```
+- [ ] 动态类型**安全转换**，转换失败返回NULL。`dynamic_cast<要转换的类型*>(被转换的指针)`。
+- [ ] 四种安全的强制类型转换运算符：
+    - [ ] `const_cast`去除`const属性`。
+    - [ ] `reinterpret_cast`不同类型的指针类型转换。
+    - [ ] `static_cast`基本类型转换。
+    - [ ] `dynamic_cast`动态类型转换。
+- [ ] `static_cast<T*>(a);`将地址`a`转换为类型`T`的地址，T和a必须是**指针、引用、算术类型或者枚举类型。**
+- [ ] `const_cast<type_id>(expression);`用来修改类型的`const`或`volatile`属性，除了有`const`和`volatile`修饰外，`type_id`和`expression`类型一样。
+    - [ ] 常量指针被转换为非常量指针，并且仍然指向原来的对象。
+    - [ ] 常量引用被转换为非常量引用，并且仍指向原来的对象。
+    - [ ] 常量对象被转换为非常量对象。
+```C++
+#include <iostream>
+
+using namespace std;
+
+//data和d公用同一片地址，但是data的数据在编译时被替换了
+int main() {
+    const int data = 8;
+    int &d = const_cast<int & >(data);//引用
+    cout << &data << ":" << data << endl;//0x7ffeed5d986c:8
+    d += 2;
+    cout << &d << ":" << d << endl;//0x7ffeed5d986c:12
+    cout << &data << ":" << data << endl;//0x7ffeed5d986c:8
+}
+```
+
+## 17.4 疑难解惑
+- [ ] 模板类由两种实现方式：
+    - [ ] 将C++模板类的声明和定义都**放在一个文件中**，使用时`#include`模板类文件名.h(或.cpp)。
+    - [ ] 将C++模板类的声明放在`.h`文件中，定义放在`.cpp`文件中，并且在`.cpp`文件中。使用方法：
+        1. 继承开发环境code::blocks下，只引入`.cpp`可以编译，只引入`.h`不可以编译。同时引入`.h`和`.cpp`可以编译。
+        2. 在Linux GCC环境下，只能引入`.cpp`可以编译，如果同时引入`.h`和`.cpp`将不能编译。
+- [ ] 模板类可以继承：
+```C++
+//仍然是模板类
+template<T>
+class SafeVector:public vector<T>
+//不是模板类了
+class SafeVector:public vector<int>
+```
+
+# 第十八章 容器与迭代器
+## 18.2 迭代器
+- [ ] 更倾向于**迭代器**而不是**下标**来访问容器。
+- [ ] 输入迭代器：支持`*p、++p、p++、p!=q、p==q`，只允许读取，**不允许修改**。
+- [ ] 输出迭代器：操作同输入迭代器一致，**可以修改**。
+- [ ] 前向迭代器：输入和输出迭代器的组合。
+- [ ] 双向迭代器：在前向迭代器上增加`--p`和`p--`操作。
+- [ ] 随机存取迭代器。
+- [ ] 迭代器的`end`操作指向末端的下一个元素，该元素不存在。
+- [ ] 改变`vector`长度的操作会时**已存在的迭代器失效**，变得不再正确。
+
+## 18.3 顺序容器
+- [ ] `vector`的操作：
+    - [ ] `push_back(t);`在向量**最后**添加元素。
+    - [ ] `v[n];`返回v中位置为n的元素。
+    - [ ] `v1 = v2;`将v1的元素替换为v2元素的**副本**。
+    - [ ] `v1 == v2;`判断v1与v2是否相等。
+    - [ ] `!，=，<，<=，>，>=`保持惯有意义。
+- [ ] `vector`初始化对象
+```C++
+#include <iostream>
+#include <vector>
+using namespace std;
+
+class A {
+public:
+    int a;
+
+    A() {
+        a = 1;
+    }
+};
+
+int main() {
+
+    vector<A> v(1);//指定初始化容量，会调用默认初始化构造函数
+    cout << v[0].a << "容量：" << v.size() << endl;//输出1，1
+
+}
+```
+- [ ] `deque`双端队列操作：
+    - [ ] `push_back(t);`在末尾添加t。
+    - [ ] `push_front(t);`在开头添加t。
+- [ ] `list`：
+    - [ ] `list<T>::iterator iter;`定义list的迭代器。
+    - [ ] `push_back();`
+    - [ ] `push_front();`
+    - [ ] 进行迭代：
+    ```C++
+    for(iter = elements.begin();iter!=elements.end();iter++)
+    {
+        cout<<"元素"<<*iter<<endl;¬
+    }
+    ```
+    - [ ] `erase(elements.begin());`删除首位元素。
+
+## 18.4 关联容器
+- [ ] `set`集合，由链表组织。
+    - [ ] 如果要修改某一个元素的值，必须先删除原有元素，再插入新元素。
+- [ ] `map`不支持副本建，`multimap`支持副本建。
+    - [ ] **键**本身不能修改，除非删除。
+    ```C++
+    map<char,int,less<char>> map1;//定义map
+    map<char,int,less<char>>::iterator mapIter;//定义迭代器
+    map1['c'] = 3;//赋值初始化
+    //遍历
+    for(mapIter=map1.begin();mapIter!=map1.end();++mapIter)
+    {
+        cout<<""<<(*mapIter).first<<(*mapIter).second;//first对应第一个键，second对应第二个值。
+    }
+    //检索'd'
+    map<char,int,less<char>>::const_iterator ptr;
+    ptr = find('d');
+    cout<<ptr->first<<ptr->second<<endl;
+    ```
+
+## 18.5 容器适配器
+- [ ] 适配器是使**一类事物的行为**类似于**另一类事物的行为**的一种机制。
+- [ ] `stack`用`vector`、`list`、`deque`实现。
+- [ ] `queue`默认用`deque`实现。
+- [ ] `priority_queue`默认用`vector`实现，**按优先级插入元素**。
