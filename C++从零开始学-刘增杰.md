@@ -261,12 +261,12 @@ string str(str1); //调用拷贝构造函数
 ```
 - [ ] 通过`[]`访问单个字符时**不会**进行范围检查，而通过`at()`会进行范围检查。
 - [ ] `char c[] = "China"; cout<<c;`输出字符时遇到`'\0'`时停止。
-- [ ] `cin.getline(字符数组名St,字符个数N,结束符);`一次读入**N**个字符（**可以包含空格**），直到遇到**结束符**停止（**默认结束符为`\n`**）。
+- [ ] `cin.getline(字符数组名St,字符个数N,结束符);`一次读入**N**个字符（**不包含空格**），直到遇到**结束符**停止（**默认结束符为`\n`**）。
 - [ ] `char *strcpy(char *dest,char *source)`字符串拷贝函数。
 - [ ] `char *strcat(char *dest,char *source)`在**dest**串后面贴上**source**。
 - [ ] `int strcmp(char *s1,char *s2)`比较两个字符串，相等返回0。
-- [ ] `strlwr(字符串)`将字符串中的**大写字母**转换为**小写字母**。
-- [ ] `strupr(字符串)`将字符串中的**小写字母**转化为**大写字母**。
+- [ ] `strlwr(字符串)`将字符串中的**大写字母**转换为**小写字母**。（非ANSI C标准）
+- [ ] `strupr(字符串)`将字符串中的**小写字母**转化为**大写字母**。（非ANSI C标准）
 - [ ] `string`类的操作：
 ```C++
 str.substr(pos,length1); //从pos位置起，长length1个字符。
@@ -274,7 +274,7 @@ str.substr(pos,length1); //从pos位置起，长length1个字符。
 str.insert(pos,str2); //将str2插入str的pos位置处。
 str.remove(pos.length1);//从pos起，删除长度为length1的字串
 str.find(str1);//返回str1首次在str中出现的索引。
-str.find(str1.pos);//返回从pos处起，str1首次在str中出现时的索引。
+str.find(str1,pos);//返回从pos处起，str1首次在str中出现时的索引。
 str.length();//返回串的长度。
 str.c_str();//将string类转换为C风格字符串，返回char*。
 ```
@@ -662,7 +662,7 @@ int main(int arg, char **args) {
     - [ ] **new对象**被`delete`时。
     - [ ] **自动对象**超出其作用域时，或者程序结束时。
     - [ ] 使用**完全限定名**显示调用对象的析构函数。
-    - [ ] 析构函数不能定义为`const`、`volatile`或`static`。
+- [ ] 析构函数不能定义为`const`、`volatile`或`static`。
 ```C++
 class <类名>
 {
